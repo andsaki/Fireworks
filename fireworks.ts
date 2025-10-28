@@ -1,25 +1,43 @@
 // =================================
 // Const
 // =================================
+/** 円周率Math.PI */
 const PI = Math.PI;
+/** 2π（完全な円の計算用） */
 const PI_2 = PI * 2;
 
 // =================================
 // Types
 // =================================
+/**
+ * 花火アニメーションのパラメータ設定インターフェース
+ */
 interface FireworkConfig {
+	/** 花火アニメーションの持続時間（ミリ秒） */
 	duration: number;
+	/** アニメーション開始前の遅延時間（ミリ秒） */
 	delay: number;
+	/** 各パーティクルの半径（ピクセル） */
 	radius: number;
+	/** 生成するパーティクルの数 */
 	amount: number;
+	/** パーティクル移動の速度倍率 */
 	speed: number;
+	/** パーティクルに適用する重力 */
 	gravity: number;
+	/** 摩擦係数（フレームごとの速度乗数） */
 	friction: number;
+	/** フレームごとのサイズ縮小率 */
 	reduction: number;
+	/** X位置（キャンバス幅の割合 0-1） */
 	X: number;
+	/** Y位置（キャンバス高さの割合 0-1） */
 	Y: number;
+	/** 打ち上げ速度（負の値 = 上向き） */
 	launchspeed: number;
+	/** 打ち上げフェーズの持続時間（ミリ秒） */
 	launchduration: number;
+	/** パーティクルの色（CSSカラー文字列） */
 	color: string;
 }
 
@@ -87,6 +105,9 @@ window.addEventListener("load", function () {
 // =================================
 // Firework
 // =================================
+/**
+ * 打ち上げと爆発フェーズを持つ単一の花火を表すクラス
+ */
 class Firework {
 	duration!: number;
 	delay!: number;
@@ -111,6 +132,10 @@ class Firework {
 	canvas!: HTMLCanvasElement;
 	context!: CanvasRenderingContext2D;
 
+	/**
+	 * 新しい花火インスタンスを作成
+	 * @param config - デフォルト設定を上書きする部分設定
+	 */
 	constructor(config: Partial<FireworkConfig>) {
 		this.setConfig(config || {});
 		this.particleImage = createParticleImage(this.radius, this.color);
@@ -120,6 +145,10 @@ class Firework {
 		this.isLaunched = false;
 	}
 
+	/**
+	 * 設定を適用し、デフォルト値とマージする
+	 * @param config - 適用する設定オブジェクト
+	 */
 	setConfig(config: Partial<FireworkConfig>): void {
 		for (const key in defaultConfig) {
 			if (config[key as keyof FireworkConfig] === undefined) {
@@ -130,6 +159,9 @@ class Firework {
 		}
 	}
 
+	/**
+	 * 開始位置で打ち上げパーティクルを初期化
+	 */
 	initlaunch(): void {
 		const x = this.canvas.width * this.X;
 		const y = this.canvas.height * this.Y;
@@ -138,6 +170,10 @@ class Firework {
 		this.launchparticle = new Launch(x, y, vx, vy);
 	}
 
+	/**
+	 * 時間に基づいて打ち上げと爆発の状態を切り替える
+	 * @param passed - 開始からの経過時間（ミリ秒）
+	 */
 	switchstate(passed: number): void {
 		const launchtime = this.launchduration + this.delay;
 		if (launchtime > passed) {
@@ -152,12 +188,20 @@ class Firework {
 		this.update(passed);
 	}
 
+	/**
+	 * 打ち上げフェーズのアニメーションを更新
+	 * @param passed - 開始からの経過時間（ミリ秒）
+	 */
 	launchupdate(passed: number): void {
 		if (this.isActive === false || this.started(passed) === false) return;
 		this.launchmove();
 		this.launchrender();
 	}
 
+	/**
+	 * 爆発フェーズのアニメーションを更新
+	 * @param passed - 開始からの経過時間（ミリ秒）
+	 */
 	update(passed: number): void {
 		if (this.isActive === false || this.started(passed) === false) return;
 
@@ -169,6 +213,9 @@ class Firework {
 		this.render();
 	}
 
+	/**
+	 * 球状パターンですべての爆発パーティクルを初期化
+	 */
 	initParticles(): void {
 		this.particles = [];
 		const l = this.launchparticle;
@@ -183,6 +230,9 @@ class Firework {
 		}
 	}
 
+	/**
+	 * 打ち上げパーティクルの物理演算を更新（位置と速度）
+	 */
 	launchmove(): void {
 		const particle = this.launchparticle;
 		particle.vx = 0;
@@ -191,6 +241,9 @@ class Firework {
 		particle.y += particle.vy;
 	}
 
+	/**
+	 * すべての爆発パーティクルの物理演算を更新（位置と速度）
+	 */
 	move(): void {
 		const particles = this.particles;
 		for (let i = 0, len = particles.length; i < len; i++) {
@@ -202,10 +255,16 @@ class Firework {
 		}
 	}
 
+	/**
+	 * 打ち上げパーティクルをレンダリング
+	 */
 	launchrender(): void {
 		this.launchrenderParticles();
 	}
 
+	/**
+	 * 打ち上げパーティクルをキャンバスに描画
+	 */
 	launchrenderParticles(): void {
 		const diameter = this.diameter *= this.reduction;
 		const context = this.context;
@@ -214,11 +273,17 @@ class Firework {
 		context.drawImage(particleImage, p.x, p.y, diameter, diameter);
 	}
 
+	/**
+	 * すべての爆発パーティクルをレンダリング
+	 */
 	render(): void {
 		this.context.globalAlpha = 0.5;
 		this.renderParticles();
 	}
 
+	/**
+	 * すべての爆発パーティクルをキャンバスに描画
+	 */
 	renderParticles(): void {
 		const diameter = this.diameter *= this.reduction;
 		const context = this.context;
@@ -230,18 +295,36 @@ class Firework {
 		}
 	}
 
+	/**
+	 * 花火が開始したかチェック（遅延時間が経過したか）
+	 * @param passed - 開始からの経過時間（ミリ秒）
+	 * @returns 開始している場合はtrue
+	 */
 	started(passed: number): boolean {
 		return this.delay < passed;
 	}
 
+	/**
+	 * 花火がまだ打ち上げフェーズかチェック
+	 * @param passed - 開始からの経過時間（ミリ秒）
+	 * @returns まだ打ち上げ中の場合はtrue
+	 */
 	hasLaunched(passed: number): boolean {
 		return this.launchduration + this.delay > passed;
 	}
 
+	/**
+	 * 花火アニメーションが終了したかチェック
+	 * @param passed - 開始からの経過時間（ミリ秒）
+	 * @returns 終了している場合はtrue
+	 */
 	ended(passed: number): boolean {
 		return this.duration + this.delay < passed;
 	}
 
+	/**
+	 * 花火を徐々にフェードアウトして無効化
+	 */
 	fadeout(): void {
 		this.fadeoutOpacity -= 0.1;
 		if (this.fadeoutOpacity <= 0) {
@@ -259,12 +342,26 @@ class Firework {
 // =================================
 // Particle
 // =================================
+/**
+ * 単一の爆発パーティクルを表すクラス
+ */
 class Particle {
+	/** X座標（ピクセル） */
 	x: number;
+	/** Y座標（ピクセル） */
 	y: number;
+	/** X方向の速度（ピクセル/フレーム） */
 	vx: number;
+	/** Y方向の速度（ピクセル/フレーム） */
 	vy: number;
 
+	/**
+	 * 新しいパーティクルを作成
+	 * @param x - 初期X座標
+	 * @param y - 初期Y座標
+	 * @param vx - 初期X方向速度
+	 * @param vy - 初期Y方向速度
+	 */
 	constructor(x: number, y: number, vx: number, vy: number) {
 		this.x = x;
 		this.y = y;
@@ -273,12 +370,26 @@ class Particle {
 	}
 }
 
+/**
+ * 打ち上げフェーズのパーティクルを表すクラス
+ */
 class Launch {
+	/** X座標（ピクセル） */
 	x: number;
+	/** Y座標（ピクセル） */
 	y: number;
+	/** X方向の速度（ピクセル/フレーム） */
 	vx: number;
+	/** Y方向の速度（ピクセル/フレーム） */
 	vy: number;
 
+	/**
+	 * 新しい打ち上げパーティクルを作成
+	 * @param x - 初期X座標
+	 * @param y - 初期Y座標
+	 * @param vx - 初期X方向速度
+	 * @param vy - 初期Y方向速度
+	 */
 	constructor(x: number, y: number, vx: number, vy: number) {
 		this.x = x;
 		this.y = y;
@@ -290,24 +401,43 @@ class Launch {
 // =================================
 // Canvas
 // =================================
+/**
+ * すべての花火を管理するキャンバスマネージャーのインターフェース
+ */
 interface CanvasManager {
+	/** キャンバスのHTML要素 */
 	canvas: HTMLCanvasElement;
+	/** 2D描画コンテキスト */
 	context: CanvasRenderingContext2D;
+	/** すべての花火インスタンスの配列 */
 	fireworks: Firework[];
+	/** アニメーション開始タイムスタンプ */
 	startTime: number;
+	/** 花火をアニメーションに追加 */
 	add(firework: Firework): void;
+	/** アニメーションループを開始 */
 	start(): void;
+	/** キャンバスを半透明の黒で塗りつぶし */
 	fill(): void;
+	/** メインアニメーション更新ループ */
 	update(): void;
+	/** キャンバスをフェードアウト */
 	fadeout(count: number): void;
 }
 
+/**
+ * 花火表示を制御するキャンバスマネージャーシングルトン
+ */
 const Canvas: CanvasManager = {
 	canvas: null as any,
 	context: null as any,
 	fireworks: [],
 	startTime: 0,
 
+	/**
+	 * 花火をキャンバスに追加して初期化
+	 * @param firework - 追加する花火インスタンス
+	 */
 	add(firework: Firework): void {
 		firework.canvas = this.canvas;
 		firework.context = this.context;
@@ -316,17 +446,25 @@ const Canvas: CanvasManager = {
 		this.fireworks.push(firework);
 	},
 
+	/**
+	 * 開始時刻を記録してアニメーションループを開始
+	 */
 	start(): void {
 		this.startTime = Date.now();
 		this.update();
 	},
 
+	/**
+	 * 軌跡効果のためキャンバスを半透明の黒で塗りつぶし
+	 */
 	fill(): void {
 		this.context.globalAlpha = 0.3;
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	},
 
-	// main loop
+	/**
+	 * メインアニメーションループ - すべてのアクティブな花火を更新して描画
+	 */
 	update(): void {
 		this.fill();
 		const passed = Date.now() - this.startTime;
@@ -346,8 +484,12 @@ const Canvas: CanvasManager = {
 		}
 	},
 
+	/**
+	 * キャンバスを黒に徐々にフェードアウト
+	 * @param count - 残りのフェードステップ数
+	 */
 	fadeout(count: number): void {
-		if (count < 0) return;    // animation end
+		if (count < 0) return;    // アニメーション終了
 		this.context.globalAlpha = 1;
 		this.context.fillStyle = "rgba(0, 0, 0, 0.2)";
 		this.fill();
@@ -360,6 +502,12 @@ const Canvas: CanvasManager = {
 // Utils
 // =================================
 
+/**
+ * レンダリング用の放射状グラデーションパーティクル画像を作成
+ * @param radius - パーティクルの半径（ピクセル）
+ * @param color - パーティクルの色（CSSカラー文字列）
+ * @returns パーティクルグラデーション付きのHTML Image要素
+ */
 function createParticleImage(radius: number, color: string): HTMLImageElement {
 	const size = radius * 2;
 	const canvas = document.createElement("canvas");
