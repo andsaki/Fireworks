@@ -1,10 +1,15 @@
-// =================================
-// Const
-// =================================
-/** 円周率Math.PI */
-const PI = Math.PI;
-/** 2π（完全な円の計算用） */
-const PI_2 = PI * 2;
+import {
+	PI_2,
+	DESKTOP_WIDTH_THRESHOLD,
+	DESKTOP_HEIGHT_RATIO,
+	MOBILE_HEIGHT_RATIO,
+	TOTAL_FIREWORKS,
+	FIREWORK_DELAY_MS,
+	FADEOUT_STEPS,
+	FADEOUT_OPACITY_STEP,
+	CANVAS_FILL_OPACITY,
+	PARTICLE_RENDER_OPACITY
+} from './constants';
 
 // =================================
 // Types
@@ -63,44 +68,44 @@ const defaultConfig: FireworkConfig = {
 // =================================
 // Main
 // =================================
-window.addEventListener("load", function () {
+window.addEventListener("load", () => {
 	const canvas = document.querySelector("canvas");
 	if (!canvas) throw new Error("Canvas element not found");
 
 	Canvas.canvas = canvas;
 	Canvas.canvas.width = document.documentElement.clientWidth;
 	Canvas.canvas.height = document.documentElement.clientHeight;
-	if (Canvas.canvas.width > 980) {
-		Canvas.canvas.height = Canvas.canvas.height * 0.85;
+	if (Canvas.canvas.width > DESKTOP_WIDTH_THRESHOLD) {
+		Canvas.canvas.height = Canvas.canvas.height * DESKTOP_HEIGHT_RATIO;
 
 	} else {
-		Canvas.canvas.height = Canvas.canvas.height * 0.5;
+		Canvas.canvas.height = Canvas.canvas.height * MOBILE_HEIGHT_RATIO;
 	}
 	const context = Canvas.canvas.getContext("2d");
 	if (!context) throw new Error("Could not get 2d context");
 	Canvas.context = context;
 	Canvas.context.fillStyle = "rgba(0, 0, 0, 0.15)";
 
-	for (let i = 0; i < 1000; i++) {
+	for (let i = 0; i < TOTAL_FIREWORKS; i++) {
 		const firework = new Firework({
 			duration: 5000,
 			X: Math.random() * 0.8 + 0.1,
 			Y: 1,
 			amount: 400,
-			delay: 3000 * i,
+			delay: FIREWORK_DELAY_MS * i,
 			radius: 4,
 			reduction: 0.992,
 			friction: 0.95,
 			speed: 25,
 			launchspeed: -0.65,
 			launchduration: Math.random() * 100 + 400,
-			color: "hsl(" + Math.random() * 360 + ", 100%, 50%)"
+			color: `hsl(${Math.random() * 360}, 100%, 50%)`
 		});
 		Canvas.add(firework);
 	}
 
 	Canvas.start();
-}, false);
+});
 
 // =================================
 // Firework
@@ -150,13 +155,19 @@ class Firework {
 	 * @param config - 適用する設定オブジェクト
 	 */
 	setConfig(config: Partial<FireworkConfig>): void {
-		for (const key in defaultConfig) {
-			if (config[key as keyof FireworkConfig] === undefined) {
-				(this as any)[key] = defaultConfig[key as keyof FireworkConfig];
-			} else {
-				(this as any)[key] = config[key as keyof FireworkConfig];
-			}
-		}
+		this.duration = config.duration ?? defaultConfig.duration;
+		this.delay = config.delay ?? defaultConfig.delay;
+		this.radius = config.radius ?? defaultConfig.radius;
+		this.amount = config.amount ?? defaultConfig.amount;
+		this.speed = config.speed ?? defaultConfig.speed;
+		this.gravity = config.gravity ?? defaultConfig.gravity;
+		this.friction = config.friction ?? defaultConfig.friction;
+		this.reduction = config.reduction ?? defaultConfig.reduction;
+		this.X = config.X ?? defaultConfig.X;
+		this.Y = config.Y ?? defaultConfig.Y;
+		this.launchspeed = config.launchspeed ?? defaultConfig.launchspeed;
+		this.launchduration = config.launchduration ?? defaultConfig.launchduration;
+		this.color = config.color ?? defaultConfig.color;
 	}
 
 	/**
@@ -277,7 +288,7 @@ class Firework {
 	 * すべての爆発パーティクルをレンダリング
 	 */
 	render(): void {
-		this.context.globalAlpha = 0.5;
+		this.context.globalAlpha = PARTICLE_RENDER_OPACITY;
 		this.renderParticles();
 	}
 
@@ -326,7 +337,7 @@ class Firework {
 	 * 花火を徐々にフェードアウトして無効化
 	 */
 	fadeout(): void {
-		this.fadeoutOpacity -= 0.1;
+		this.fadeoutOpacity -= FADEOUT_OPACITY_STEP;
 		if (this.fadeoutOpacity <= 0) {
 			this.isActive = false;
 			return;
@@ -429,8 +440,8 @@ interface CanvasManager {
  * 花火表示を制御するキャンバスマネージャーシングルトン
  */
 const Canvas: CanvasManager = {
-	canvas: null as any,
-	context: null as any,
+	canvas: undefined as unknown as HTMLCanvasElement,
+	context: undefined as unknown as CanvasRenderingContext2D,
 	fireworks: [],
 	startTime: 0,
 
@@ -458,7 +469,7 @@ const Canvas: CanvasManager = {
 	 * 軌跡効果のためキャンバスを半透明の黒で塗りつぶし
 	 */
 	fill(): void {
-		this.context.globalAlpha = 0.3;
+		this.context.globalAlpha = CANVAS_FILL_OPACITY;
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	},
 
@@ -480,7 +491,7 @@ const Canvas: CanvasManager = {
 		if (0 < activeFireworkCount) {
 			requestAnimationFrame(this.update.bind(this));
 		} else {
-			requestAnimationFrame(this.fadeout.bind(this, 100));
+			requestAnimationFrame(this.fadeout.bind(this, FADEOUT_STEPS));
 		}
 	},
 
