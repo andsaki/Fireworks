@@ -24,8 +24,10 @@ export interface FireworkConfig {
 	reduction: number;
 	/** X位置（キャンバス幅の割合 0-1） */
 	X: number;
-	/** Y位置（キャンバス高さの割合 0-1） */
+	/** 開花Y位置（キャンバス高さの割合 0-1） */
 	Y: number;
+	/** 打ち上げ開始Y位置（キャンバス高さの割合 0-1） */
+	startY: number;
 	/** 打ち上げ速度（負の値 = 上向き） */
 	launchSpeed: number;
 	/** 打ち上げフェーズの持続時間（ミリ秒） */

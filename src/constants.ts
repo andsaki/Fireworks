@@ -14,7 +14,7 @@ export const DESKTOP_WIDTH_THRESHOLD = 980;
 /** デスクトップでのキャンバス高さ倍率 */
 export const DESKTOP_HEIGHT_RATIO = 0.85;
 /** モバイルでのキャンバス高さ倍率 */
-export const MOBILE_HEIGHT_RATIO = 0.5;
+export const MOBILE_HEIGHT_RATIO = 1.0;
 
 // =================================
 // Firework Constants
@@ -38,4 +38,4 @@ export const FADEOUT_OPACITY_STEP = 0.1;
 /** キャンバスの塗りつぶし不透明度 */
 export const CANVAS_FILL_OPACITY = 0.3;
 /** パーティクルのレンダリング不透明度 */
-export const PARTICLE_RENDER_OPACITY = 0.5;
+export const PARTICLE_RENDER_OPACITY = 1.0;

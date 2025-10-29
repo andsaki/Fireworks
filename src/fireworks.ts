@@ -30,17 +30,21 @@ window.addEventListener("load", () => {
 	Canvas.context.fillStyle = "rgba(0, 0, 0, 0.15)";
 
 	for (let i = 0; i < TOTAL_FIREWORKS; i++) {
+		const isMobile = Canvas.canvas.width <= DESKTOP_WIDTH_THRESHOLD;
+		const baseY = isMobile ? 0.2 : 0.25;
+		const randomOffset = (Math.random() - 0.5) * 0.1;
 		const firework = new Firework({
 			duration: 5000,
 			X: Math.random() * 0.8 + 0.1,
-			Y: 1,
+			Y: baseY + randomOffset,
+			startY: 1.0,
 			amount: 400,
 			delay: FIREWORK_DELAY_MS * i,
 			radius: 4,
 			reduction: 0.992,
 			friction: 0.95,
 			speed: 25,
-			launchSpeed: -0.65,
+			launchSpeed: isMobile ? -0.4 : -0.5,
 			launchDuration: Math.random() * 100 + 400,
 			color: `hsl(${Math.random() * 360}, 100%, 50%)`
 		});

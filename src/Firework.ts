@@ -17,6 +17,7 @@ const defaultConfig: FireworkConfig = {
 	reduction: 0.98,
 	X: 0.5,
 	Y: 0.3,
+	startY: 1.0,
 	launchSpeed: -1,
 	launchDuration: 500,
 	color: "#ff0000",
@@ -39,6 +40,7 @@ export class Firework {
 	reduction!: number;
 	X!: number;
 	Y!: number;
+	startY!: number;
 	launchSpeed!: number;
 	launchDuration!: number;
 	color!: string;
@@ -80,6 +82,7 @@ export class Firework {
 		this.reduction = config.reduction ?? defaultConfig.reduction;
 		this.X = config.X ?? defaultConfig.X;
 		this.Y = config.Y ?? defaultConfig.Y;
+		this.startY = config.startY ?? defaultConfig.startY;
 		this.launchSpeed = config.launchSpeed ?? defaultConfig.launchSpeed;
 		this.launchDuration = config.launchDuration ?? defaultConfig.launchDuration;
 		this.color = config.color ?? defaultConfig.color;
@@ -90,7 +93,7 @@ export class Firework {
 	 */
 	initLaunch(): void {
 		const x = this.canvas.width * this.X;
-		const y = this.canvas.height * this.Y;
+		const y = this.canvas.height * this.startY;
 		const vx = 0;
 		const vy = this.launchSpeed;
 		this.launchparticle = new Launch(x, y, vx, vy);
@@ -101,14 +104,14 @@ export class Firework {
 	 * @param passed - 開始からの経過時間（ミリ秒）
 	 */
 	switchState(passed: number): void {
-		const launchTime = this.launchDuration + this.delay;
-		if (launchTime > passed) {
-			this.launchUpdate(passed);
-			return;
-		} else {
-			if (this.isLaunched === false) {
+		if (this.isLaunched === false) {
+			const targetY = this.canvas.height * this.Y;
+			if (this.launchparticle && this.launchparticle.y <= targetY) {
 				this.isLaunched = true;
 				this.initParticles();
+			} else {
+				this.launchUpdate(passed);
+				return;
 			}
 		}
 		this.update(passed);
