@@ -38,8 +38,9 @@ window.addEventListener("load", () => {
 
 	for (let i = 0; i < TOTAL_FIREWORKS; i++) {
 		const isMobile = Canvas.canvas.width <= DESKTOP_WIDTH_THRESHOLD;
-		const baseY = isMobile ? 0.2 : 0.25;
+		const baseY = isMobile ? 0.2 : 0.3;
 		const randomOffset = (Math.random() - 0.5) * 0.1;
+		const startY = isMobile ? 1.0 : 1.0;
 		const type = getRandomFireworkType();
 
 		// タイプに応じて設定を調整（パーティクル数を削減）
@@ -60,7 +61,7 @@ window.addEventListener("load", () => {
 			duration: isMobile ? 4500 : 5000,
 			X: Math.random() * 0.8 + 0.1,
 			Y: baseY + randomOffset,
-			startY: 1.0,
+			startY: startY,
 			amount: isMobile ? amount : amount * 1.5,
 			delay: FIREWORK_DELAY_MS * i,
 			radius: isMobile ? 4 : 3,
