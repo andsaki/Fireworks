@@ -107,7 +107,7 @@ export class Firework {
 	initLaunch(): void {
 		const x = this.canvas.width * this.X;
 		const y = this.canvas.height * this.startY;
-		const vx = (Math.random() - 0.5) * 0.5;
+		const vx = (Math.random() - 0.5) * 1.5;
 		const vy = this.launchSpeed;
 		this.launchparticle = new Launch(x, y, vx, vy);
 	}
@@ -257,8 +257,8 @@ export class Firework {
 	 */
 	launchMove(): void {
 		const particle = this.launchparticle;
-		particle.vx += (Math.random() - 0.5) * 0.1;
-		particle.vx *= 0.95;
+		particle.vx += (Math.random() - 0.5) * 0.3;
+		particle.vx *= 0.98;
 		particle.vy = particle.vy * this.friction + this.gravity + this.launchSpeed;
 		particle.x += particle.vx;
 		particle.y += particle.vy;
