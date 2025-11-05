@@ -57,8 +57,6 @@ export class Firework {
 	launchparticle!: Launch;
 	canvas!: HTMLCanvasElement;
 	context!: CanvasRenderingContext2D;
-	/** 音声コンテキスト（共有） */
-	private static audioContext?: AudioContext;
 
 	/**
 	 * 新しい花火インスタンスを作成
@@ -94,11 +92,6 @@ export class Firework {
 		this.launchDuration = config.launchDuration ?? defaultConfig.launchDuration;
 		this.color = config.color ?? defaultConfig.color;
 		this.type = config.type ?? defaultConfig.type;
-
-		// AudioContextの初期化（共有、1回のみ）
-		if (!Firework.audioContext && typeof AudioContext !== 'undefined') {
-			Firework.audioContext = new AudioContext();
-		}
 	}
 
 	/**
@@ -107,7 +100,7 @@ export class Firework {
 	initLaunch(): void {
 		const x = this.canvas.width * this.X;
 		const y = this.canvas.height * this.startY;
-		const vx = (Math.random() - 0.5) * 1.5;
+		const vx = (Math.random() - 0.5) * 2.0;
 		const vy = this.launchSpeed;
 		this.launchparticle = new Launch(x, y, vx, vy);
 	}
@@ -257,8 +250,8 @@ export class Firework {
 	 */
 	launchMove(): void {
 		const particle = this.launchparticle;
-		particle.vx += (Math.random() - 0.5) * 0.3;
-		particle.vx *= 0.98;
+		particle.vx += (Math.random() - 0.5) * 0.5;
+		particle.vx *= 0.985;
 		particle.vy = particle.vy * this.friction + this.gravity + this.launchSpeed;
 		particle.x += particle.vx;
 		particle.y += particle.vy;
@@ -319,14 +312,6 @@ export class Firework {
 	}
 
 	/**
-	 * 色相をシフト
-	 */
-	private shiftHue(color: string, shift: number): string {
-		// 簡易的な色相シフト（実際はHSL変換が必要だが、簡略化）
-		return color;
-	}
-
-	/**
 	 * 花火が開始したかチェック（遅延時間が経過したか）
 	 * @param passed - 開始からの経過時間（ミリ秒）
 	 * @returns 開始している場合はtrue
@@ -367,58 +352,6 @@ export class Firework {
 		this.renderParticles();
 	}
 
-	/**
-	 * 打ち上げ音を再生
-	 */
-	private playLaunchSound(): void {
-		if (!Firework.audioContext) return;
-
-		const oscillator = Firework.audioContext.createOscillator();
-		const gainNode = Firework.audioContext.createGain();
-
-		oscillator.connect(gainNode);
-		gainNode.connect(Firework.audioContext.destination);
-
-		// 「シュー」という音（音量を下げる）
-		oscillator.type = 'sawtooth';
-		oscillator.frequency.setValueAtTime(200, Firework.audioContext.currentTime);
-		oscillator.frequency.exponentialRampToValueAtTime(800, Firework.audioContext.currentTime + 0.3);
-
-		gainNode.gain.setValueAtTime(0.05, Firework.audioContext.currentTime);
-		gainNode.gain.exponentialRampToValueAtTime(0.01, Firework.audioContext.currentTime + 0.3);
-
-		oscillator.start(Firework.audioContext.currentTime);
-		oscillator.stop(Firework.audioContext.currentTime + 0.3);
-	}
-
-	/**
-	 * 爆発音を再生
-	 */
-	private playExplosionSound(): void {
-		if (!Firework.audioContext) return;
-
-		const oscillator = Firework.audioContext.createOscillator();
-		const gainNode = Firework.audioContext.createGain();
-		const filter = Firework.audioContext.createBiquadFilter();
-
-		oscillator.connect(filter);
-		filter.connect(gainNode);
-		gainNode.connect(Firework.audioContext.destination);
-
-		// 「ドン」という音（音量を下げる）
-		oscillator.type = 'sine';
-		oscillator.frequency.setValueAtTime(150, Firework.audioContext.currentTime);
-		oscillator.frequency.exponentialRampToValueAtTime(50, Firework.audioContext.currentTime + 0.2);
-
-		filter.type = 'lowpass';
-		filter.frequency.setValueAtTime(1000, Firework.audioContext.currentTime);
-
-		gainNode.gain.setValueAtTime(0.15, Firework.audioContext.currentTime);
-		gainNode.gain.exponentialRampToValueAtTime(0.01, Firework.audioContext.currentTime + 0.5);
-
-		oscillator.start(Firework.audioContext.currentTime);
-		oscillator.stop(Firework.audioContext.currentTime + 0.5);
-	}
 }
 
 // =================================
