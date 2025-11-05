@@ -3,6 +3,11 @@
 // =================================
 
 /**
+ * 花火の種類
+ */
+export type FireworkType = 'chrysanthemum' | 'willow' | 'peony' | 'star' | 'palm';
+
+/**
  * 花火アニメーションのパラメータ設定インターフェース
  */
 export interface FireworkConfig {
@@ -20,6 +25,8 @@ export interface FireworkConfig {
 	gravity: number;
 	/** 摩擦係数（フレームごとの速度乗数） */
 	friction: number;
+	/** 空気抵抗係数 */
+	airResistance: number;
 	/** フレームごとのサイズ縮小率 */
 	reduction: number;
 	/** X位置（キャンバス幅の割合 0-1） */
@@ -34,6 +41,8 @@ export interface FireworkConfig {
 	launchDuration: number;
 	/** パーティクルの色（CSSカラー文字列） */
 	color: string;
+	/** 花火の種類 */
+	type: FireworkType;
 }
 
 /**

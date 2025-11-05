@@ -7,6 +7,7 @@ import {
 } from './constants';
 import { Canvas } from './Canvas';
 import { Firework } from './Firework';
+import type { FireworkType } from './types';
 
 // =================================
 // Main
@@ -29,24 +30,48 @@ window.addEventListener("load", () => {
 	Canvas.context = context;
 	Canvas.context.fillStyle = "rgba(0, 0, 0, 0.15)";
 
+	// 花火のタイプをランダムに選択するヘルパー関数
+	const getRandomFireworkType = (): FireworkType => {
+		const types: FireworkType[] = ['chrysanthemum', 'willow', 'peony', 'star', 'palm'];
+		return types[Math.floor(Math.random() * types.length)];
+	};
+
 	for (let i = 0; i < TOTAL_FIREWORKS; i++) {
 		const isMobile = Canvas.canvas.width <= DESKTOP_WIDTH_THRESHOLD;
 		const baseY = isMobile ? 0.2 : 0.25;
 		const randomOffset = (Math.random() - 0.5) * 0.1;
+		const type = getRandomFireworkType();
+
+		// タイプに応じて設定を調整（パーティクル数を削減）
+		let amount = 200;
+		let speed = 25;
+		if (type === 'willow') {
+			amount = 150;
+			speed = 20;
+		} else if (type === 'star') {
+			amount = 120;
+			speed = 22;
+		} else if (type === 'palm') {
+			amount = 180;
+			speed = 23;
+		}
+
 		const firework = new Firework({
-			duration: 5000,
+			duration: 4000,
 			X: Math.random() * 0.8 + 0.1,
 			Y: baseY + randomOffset,
 			startY: 1.0,
-			amount: 400,
+			amount: amount,
 			delay: FIREWORK_DELAY_MS * i,
 			radius: 4,
-			reduction: 0.992,
-			friction: 0.95,
-			speed: 25,
-			launchSpeed: isMobile ? -0.4 : -0.5,
-			launchDuration: Math.random() * 100 + 400,
-			color: `hsl(${Math.random() * 360}, 100%, 50%)`
+			reduction: 0.998,
+			friction: 0.985,
+			gravity: 0.03,
+			speed: speed * 0.6,
+			launchSpeed: isMobile ? -0.8 : -1.0,
+			launchDuration: Math.random() * 300 + 800,
+			color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+			type: type
 		});
 		Canvas.add(firework);
 	}
