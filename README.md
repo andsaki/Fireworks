@@ -2,7 +2,7 @@
 
 キャンバス上で花火のアニメーションを表示するWebアプリケーション
 
-🎆 **[デモを見る](https://andsaki.github.io/Fireworks/)**
+🎆 **[デモを見る](https://hanabi-taikai.pages.dev/)**
 
 ## 概要
 
@@ -13,7 +13,7 @@
 - **TypeScript** - 型安全性の向上
 - **Vite** - 高速なビルドツール
 - **Canvas API** - アニメーション描画
-- **GitHub Actions** - CI/CD自動デプロイ
+- **Cloudflare Pages** - ホスティング・自動デプロイ
 
 ## セットアップ
 
@@ -69,7 +69,7 @@ src/
 
 ## デプロイ
 
-masterブランチへのpush時に、GitHub Actionsが自動的にビルドしてGitHub Pagesにデプロイします。
+masterブランチへのpush時に、Cloudflare Pagesが自動的にビルドしてデプロイします。
 
 ## ライセンス
 
