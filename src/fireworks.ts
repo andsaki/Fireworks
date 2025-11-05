@@ -57,19 +57,19 @@ window.addEventListener("load", () => {
 		}
 
 		const firework = new Firework({
-			duration: 4500,
+			duration: isMobile ? 4500 : 5000,
 			X: Math.random() * 0.8 + 0.1,
 			Y: baseY + randomOffset,
 			startY: 1.0,
-			amount: amount,
+			amount: isMobile ? amount : amount * 1.5,
 			delay: FIREWORK_DELAY_MS * i,
-			radius: 4,
+			radius: isMobile ? 4 : 5,
 			reduction: 0.999,
 			friction: 0.99,
-			gravity: 0.025,
-			speed: speed * 0.5,
-			launchSpeed: isMobile ? -0.4 : -0.5,
-			launchDuration: Math.random() * 600 + 1200,
+			gravity: isMobile ? 0.025 : 0.03,
+			speed: speed * (isMobile ? 0.5 : 0.7),
+			launchSpeed: isMobile ? -0.4 : -0.8,
+			launchDuration: isMobile ? Math.random() * 600 + 1200 : Math.random() * 400 + 800,
 			color: `hsl(${Math.random() * 360}, 100%, 50%)`,
 			type: type
 		});
