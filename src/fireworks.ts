@@ -63,7 +63,7 @@ window.addEventListener("load", () => {
 			startY: 1.0,
 			amount: isMobile ? amount : amount * 1.5,
 			delay: FIREWORK_DELAY_MS * i,
-			radius: isMobile ? 4 : 5,
+			radius: isMobile ? 4 : 3,
 			reduction: 0.999,
 			friction: 0.99,
 			gravity: isMobile ? 0.025 : 0.03,
