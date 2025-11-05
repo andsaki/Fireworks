@@ -68,8 +68,8 @@ window.addEventListener("load", () => {
 			friction: 0.99,
 			gravity: 0.025,
 			speed: speed * 0.5,
-			launchSpeed: isMobile ? -0.9 : -1.2,
-			launchDuration: Math.random() * 400 + 900,
+			launchSpeed: isMobile ? -0.4 : -0.5,
+			launchDuration: Math.random() * 600 + 1200,
 			color: `hsl(${Math.random() * 360}, 100%, 50%)`,
 			type: type
 		});
