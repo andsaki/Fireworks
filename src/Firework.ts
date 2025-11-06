@@ -251,15 +251,15 @@ export class Firework {
 	launchMove(): void {
 		const particle = this.launchparticle;
 
-		// 空気抵抗（少しだけ）
+		// 空気抵抗
 		const airResistance = 0.997;
 		particle.vx *= airResistance;
 		particle.vy *= airResistance;
 
-		// 重力を適用（少しだけ）
+		// 重力を適用
 		particle.vy += this.gravity * 0.2;
 
-		// 横方向の揺らぎ（風の影響、弱く）
+		// 横方向の揺らぎ
 		particle.vx += (Math.random() - 0.5) * 0.05;
 
 		// 位置を更新
