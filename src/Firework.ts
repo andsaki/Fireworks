@@ -100,7 +100,7 @@ export class Firework {
 	initLaunch(): void {
 		const x = this.canvas.width * this.X;
 		const y = this.canvas.height * this.startY;
-		const vx = (Math.random() - 0.5) * 2.5;
+		const vx = (Math.random() - 0.5) * 0.5;
 		const vy = this.launchSpeed;
 		this.launchparticle = new Launch(x, y, vx, vy);
 	}
@@ -257,8 +257,8 @@ export class Firework {
 		const dragX = -particle.vx * speed * airResistance;
 		const dragY = -particle.vy * speed * airResistance;
 
-		// 横方向の揺らぎ（風の影響）
-		particle.vx += (Math.random() - 0.5) * 0.3;
+		// 横方向の揺らぎ（風の影響、弱く）
+		particle.vx += (Math.random() - 0.5) * 0.05;
 
 		// 加速度を適用
 		particle.vx += dragX;
@@ -266,6 +266,9 @@ export class Firework {
 
 		// 打ち上げ推進力を継続的に加える
 		particle.vy += this.launchSpeed * 0.3;
+
+		// 横方向の速度を制限
+		particle.vx *= 0.95;
 
 		// 位置を更新
 		particle.x += particle.vx;
