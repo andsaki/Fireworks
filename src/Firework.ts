@@ -12,8 +12,9 @@ const defaultConfig: FireworkConfig = {
 	radius: 5,              // px
 	amount: 100,            // particle number
 	speed: 12,
-	gravity: 0.03,
+	gravity: 0.08,
 	friction: 0.96,
+	airResistance: 0.98,
 	reduction: 0.98,
 	X: 0.5,
 	Y: 0.3,
@@ -21,6 +22,7 @@ const defaultConfig: FireworkConfig = {
 	launchSpeed: -1,
 	launchDuration: 500,
 	color: "#ff0000",
+	type: 'chrysanthemum',
 };
 
 // =================================
@@ -37,6 +39,7 @@ export class Firework {
 	speed!: number;
 	gravity!: number;
 	friction!: number;
+	airResistance!: number;
 	reduction!: number;
 	X!: number;
 	Y!: number;
@@ -44,6 +47,7 @@ export class Firework {
 	launchSpeed!: number;
 	launchDuration!: number;
 	color!: string;
+	type!: FireworkConfig['type'];
 	particleImage!: HTMLImageElement;
 	diameter!: number;
 	isActive!: boolean;
@@ -79,6 +83,7 @@ export class Firework {
 		this.speed = config.speed ?? defaultConfig.speed;
 		this.gravity = config.gravity ?? defaultConfig.gravity;
 		this.friction = config.friction ?? defaultConfig.friction;
+		this.airResistance = config.airResistance ?? defaultConfig.airResistance;
 		this.reduction = config.reduction ?? defaultConfig.reduction;
 		this.X = config.X ?? defaultConfig.X;
 		this.Y = config.Y ?? defaultConfig.Y;
@@ -86,6 +91,7 @@ export class Firework {
 		this.launchSpeed = config.launchSpeed ?? defaultConfig.launchSpeed;
 		this.launchDuration = config.launchDuration ?? defaultConfig.launchDuration;
 		this.color = config.color ?? defaultConfig.color;
+		this.type = config.type ?? defaultConfig.type;
 	}
 
 	/**
@@ -94,7 +100,7 @@ export class Firework {
 	initLaunch(): void {
 		const x = this.canvas.width * this.X;
 		const y = this.canvas.height * this.startY;
-		const vx = 0;
+		const vx = (Math.random() - 0.5) * 0.5;
 		const vy = this.launchSpeed;
 		this.launchparticle = new Launch(x, y, vx, vy);
 	}
@@ -148,8 +154,31 @@ export class Firework {
 	initParticles(): void {
 		this.particles = [];
 		const l = this.launchparticle;
-		const maxSpeed = (this.speed / 2) * (this.speed / 2);
 
+		switch (this.type) {
+			case 'chrysanthemum':
+				this.initChrysanthemum(l);
+				break;
+			case 'willow':
+				this.initWillow(l);
+				break;
+			case 'peony':
+				this.initPeony(l);
+				break;
+			case 'star':
+				this.initStar(l);
+				break;
+			case 'palm':
+				this.initPalm(l);
+				break;
+		}
+	}
+
+	/**
+	 * 菊花火パターン（球状に均等に広がる）
+	 */
+	private initChrysanthemum(l: Launch): void {
+		const maxSpeed = (this.speed / 2) * (this.speed / 2);
 		while (this.particles.length < this.amount) {
 			const vx = (Math.random() - 0.5) * this.speed;
 			const vy = (Math.random() - 0.5) * this.speed;
@@ -160,12 +189,80 @@ export class Firework {
 	}
 
 	/**
+	 * 柳花火パターン（垂れ下がる）
+	 */
+	private initWillow(l: Launch): void {
+		for (let i = 0; i < this.amount; i++) {
+			const angle = (Math.PI * 2 * i) / this.amount;
+			const speed = Math.random() * this.speed * 0.5 + this.speed * 0.3;
+			const vx = Math.cos(angle) * speed;
+			const vy = Math.sin(angle) * speed * 0.3 - Math.random() * 2;
+			this.particles.push(new Particle(l.x, l.y, vx, vy));
+		}
+	}
+
+	/**
+	 * 牡丹花火パターン（大きく広がる）
+	 */
+	private initPeony(l: Launch): void {
+		for (let i = 0; i < this.amount; i++) {
+			const angle = (Math.PI * 2 * i) / this.amount + Math.random() * 0.5;
+			const speed = Math.random() * this.speed * 0.4 + this.speed * 0.8;
+			const vx = Math.cos(angle) * speed;
+			const vy = Math.sin(angle) * speed;
+			this.particles.push(new Particle(l.x, l.y, vx, vy));
+		}
+	}
+
+	/**
+	 * 星花火パターン（キラキラ）
+	 */
+	private initStar(l: Launch): void {
+		const points = 5;
+		const particlesPerPoint = Math.floor(this.amount / points);
+		for (let p = 0; p < points; p++) {
+			const angle = (Math.PI * 2 * p) / points - Math.PI / 2;
+			for (let i = 0; i < particlesPerPoint; i++) {
+				const spread = (Math.random() - 0.5) * 0.4;
+				const speed = Math.random() * this.speed * 0.3 + this.speed * 0.6;
+				const vx = Math.cos(angle + spread) * speed;
+				const vy = Math.sin(angle + spread) * speed;
+				this.particles.push(new Particle(l.x, l.y, vx, vy));
+			}
+		}
+	}
+
+	/**
+	 * 椰子花火パターン（上に広がる）
+	 */
+	private initPalm(l: Launch): void {
+		for (let i = 0; i < this.amount; i++) {
+			const angle = (Math.PI * 2 * i) / this.amount;
+			const speed = Math.random() * this.speed * 0.4 + this.speed * 0.4;
+			const vx = Math.cos(angle) * speed;
+			const vy = Math.sin(angle) * speed * 0.5 - this.speed * 0.3;
+			this.particles.push(new Particle(l.x, l.y, vx, vy));
+		}
+	}
+
+	/**
 	 * 打ち上げパーティクルの物理演算を更新（位置と速度）
 	 */
 	launchMove(): void {
 		const particle = this.launchparticle;
-		particle.vx = 0;
-		particle.vy = particle.vy * this.friction + this.gravity + this.launchSpeed;
+
+		// 空気抵抗
+		const airResistance = 0.997;
+		particle.vx *= airResistance;
+		particle.vy *= airResistance;
+
+		// 重力を適用
+		particle.vy += this.gravity * 0.2;
+
+		// 横方向の揺らぎ
+		particle.vx += (Math.random() - 0.5) * 0.05;
+
+		// 位置を更新
 		particle.x += particle.vx;
 		particle.y += particle.vy;
 	}
@@ -264,6 +361,7 @@ export class Firework {
 		this.context.globalAlpha = this.fadeoutOpacity;
 		this.renderParticles();
 	}
+
 }
 
 // =================================

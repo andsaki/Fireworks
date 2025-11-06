@@ -12,7 +12,7 @@ export const PI_2 = PI * 2;
 /** デスクトップ画面の幅閾値 */
 export const DESKTOP_WIDTH_THRESHOLD = 980;
 /** デスクトップでのキャンバス高さ倍率 */
-export const DESKTOP_HEIGHT_RATIO = 0.85;
+export const DESKTOP_HEIGHT_RATIO = 1.0;
 /** モバイルでのキャンバス高さ倍率 */
 export const MOBILE_HEIGHT_RATIO = 1.0;
 
