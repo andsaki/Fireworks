@@ -251,9 +251,9 @@ export class Firework {
 	launchMove(): void {
 		const particle = this.launchparticle;
 
-		// 空気抵抗（速度の2乗に比例）
+		// 空気抵抗（軽め）
 		const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
-		const airResistance = 0.015;
+		const airResistance = 0.002;
 		const dragX = -particle.vx * speed * airResistance;
 		const dragY = -particle.vy * speed * airResistance;
 
@@ -262,11 +262,10 @@ export class Firework {
 
 		// 加速度を適用
 		particle.vx += dragX;
-		particle.vy += dragY + this.gravity * 2;
+		particle.vy += dragY + this.gravity;
 
-		// 減衰
-		particle.vx *= 0.98;
-		particle.vy *= 0.98;
+		// 打ち上げ推進力を継続的に加える
+		particle.vy += this.launchSpeed * 0.3;
 
 		// 位置を更新
 		particle.x += particle.vx;
